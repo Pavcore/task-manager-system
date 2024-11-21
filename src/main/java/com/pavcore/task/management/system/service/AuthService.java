@@ -1,34 +1,28 @@
 package com.pavcore.task.management.system.service;
 
-import com.pavcore.task.management.system.dao.entity.User;
+import com.pavcore.task.management.system.config.JwtUtil;
 import com.pavcore.task.management.system.dto.request.UserRequestTO;
-import com.pavcore.task.management.system.dto.response.UserResponseTO;
-import com.pavcore.task.management.system.mapper.ResponseMapper;
 import org.springframework.beans.factory.annotation.Autowired;
-import org.springframework.security.crypto.password.PasswordEncoder;
+import org.springframework.security.authentication.AuthenticationManager;
+import org.springframework.security.authentication.UsernamePasswordAuthenticationToken;
 import org.springframework.stereotype.Service;
 
 @Service
 public class AuthService {
 
-    private final UserService userService;
-    private final PasswordEncoder passwordEncoder;
-    private final ResponseMapper responseMapper;
+    private final AuthenticationManager authenticationManager;
+    private final JwtUtil jwtUtil;
 
     @Autowired
-    public AuthService(UserService userService, PasswordEncoder passwordEncoder, ResponseMapper responseMapper) {
-        this.userService = userService;
-        this.passwordEncoder = passwordEncoder;
-        this.responseMapper = responseMapper;
+    public AuthService(AuthenticationManager authenticationManager, JwtUtil jwtUtil) {
+        this.authenticationManager = authenticationManager;
+        this.jwtUtil = jwtUtil;
     }
 
-    public UserResponseTO authenticate(UserRequestTO userRequestTO) {
-        if (userService.getUserByEmail(userRequestTO.getEmail()) == null) {
-            return null;
-        }
-        User user = userService.getUserByEmail(userRequestTO.getEmail());
-        if (passwordEncoder.matches(userRequestTO.getPassword(), user.getPassword())) {
-            return responseMapper.map(user);
-        } else return null;
+    public String authenticate(UserRequestTO userRequestTO) {
+        String email = userRequestTO.getEmail();
+        String password = userRequestTO.getPassword();
+        authenticationManager.authenticate(new UsernamePasswordAuthenticationToken(email, password));
+        return jwtUtil.generateToken(email);
     }
 }

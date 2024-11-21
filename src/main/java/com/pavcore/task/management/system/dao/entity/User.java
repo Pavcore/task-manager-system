@@ -27,6 +27,4 @@ public class User {
     @Enumerated(EnumType.STRING)
     private Role role;
 
-    @OneToMany(mappedBy = "performer")
-    private List<Task> task;
 }

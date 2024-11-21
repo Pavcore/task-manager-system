@@ -3,6 +3,7 @@ package com.pavcore.task.management.system.service;
 import com.pavcore.task.management.system.dao.entity.User;
 import com.pavcore.task.management.system.dao.repo.UserRepo;
 import org.springframework.beans.factory.annotation.Autowired;
+import org.springframework.security.core.userdetails.UsernameNotFoundException;
 import org.springframework.stereotype.Service;
 
 @Service
@@ -20,6 +21,6 @@ public class UserService {
     }
 
     public User getUserByEmail(String email) {
-        return userRepo.findByEmail(email);
+        return userRepo.findByEmail(email).orElseThrow(() -> new UsernameNotFoundException("User not found"));
     }
 }

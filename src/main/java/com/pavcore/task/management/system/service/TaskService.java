@@ -90,9 +90,9 @@ public class TaskService {
         return false;
     }
 
-    public List<TaskResponseTO> getTasksById(long taskId) {
+    public List<TaskResponseTO> getTasksByAuthor(User author) {
         List<TaskResponseTO> taskResponseTOS = new ArrayList<>();
-        for (Task task : taskRepo.getTasksByAuthor(taskId)) {
+        for (Task task : taskRepo.getTasksByAuthor(author)) {
             taskResponseTOS.add(responseMapper.map(task));
         }
         return taskResponseTOS;

@@ -30,9 +30,11 @@ public class Task {
     @OneToMany(mappedBy = "task")
     private List<Comment> comment;
 
-    private long author;
+    @ManyToOne
+    @JoinColumn(name = "author_id")
+    private User author;
 
     @ManyToOne
-    @JoinColumn(name = "task")
+    @JoinColumn(name = "performer_id")
     private User performer;
 }
