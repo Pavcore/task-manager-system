@@ -1,14 +1,13 @@
 package com.pavcore.task.management.system.controller;
 
-import com.pavcore.task.management.system.dao.entity.Task;
 import com.pavcore.task.management.system.dto.request.TaskRequestTO;
+import com.pavcore.task.management.system.dto.response.TaskResponseTO;
 import com.pavcore.task.management.system.service.TaskService;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.http.ResponseEntity;
 import org.springframework.security.access.annotation.Secured;
 import org.springframework.web.bind.annotation.*;
 
-import java.util.ArrayList;
 import java.util.List;
 
 @RestController
@@ -24,59 +23,75 @@ public class TaskController {
 
     @Secured({"ADMIN"})
     @GetMapping("/{id}")
-    public ResponseEntity<Task> getTask(@PathVariable String id) {
-        return ResponseEntity.ok(new Task());
+    public ResponseEntity<TaskResponseTO> getTask(@PathVariable long id) {
+        TaskResponseTO taskResponseTO = taskService.getTask(id);
+        return ResponseEntity.ok(taskResponseTO);
     }
 
     @Secured({"ADMIN"})
     @GetMapping("/author")
-    public ResponseEntity<List<Task>> getTasksByAuthor(@RequestParam long authorId) {
-        return ResponseEntity.ok(new ArrayList<Task>());
+    public ResponseEntity<List<TaskResponseTO>> getTasksByAuthor(@RequestParam long authorId) {
+        List<TaskResponseTO> taskResponseTOS = taskService.getTasksByAuthor(authorId);
+        return ResponseEntity.ok(taskResponseTOS);
     }
 
     @Secured({"ADMIN"})
     @GetMapping("/performer")
-    public ResponseEntity<List<Task>> getTasksByPerformer(@RequestParam long performerId) {
-        return ResponseEntity.ok(new ArrayList<Task>());
+    public ResponseEntity<List<TaskResponseTO>> getTasksByPerformer(@RequestParam long performerId) {
+        List<TaskResponseTO> taskResponseTOS = taskService.getTasksByPerformer(performerId);
+        return ResponseEntity.ok(taskResponseTOS);
     }
 
     @Secured({"ADMIN"})
     @PostMapping()
-    public ResponseEntity<Task> createTask(@RequestBody TaskRequestTO taskRequestTO) {
-        return ResponseEntity.ok(new Task());
+    public ResponseEntity<TaskResponseTO> createTask(@RequestBody TaskRequestTO taskRequestTO) {
+        TaskResponseTO taskResponseTO = taskService.createTask(taskRequestTO);
+        return ResponseEntity.ok(taskResponseTO);
     }
 
     @Secured({"ADMIN"})
     @PutMapping
-    public ResponseEntity<Task> updateTask(@RequestBody TaskRequestTO taskRequestTO) {
-        return ResponseEntity.ok(new Task());
+    public ResponseEntity<TaskResponseTO> updateTask(@RequestBody TaskRequestTO taskRequestTO, @RequestParam long id) {
+        TaskResponseTO taskResponseTO = taskService.updateTask(taskRequestTO, id);
+        return ResponseEntity.ok(taskResponseTO);
     }
 
     @Secured({"ADMIN"})
     @DeleteMapping
-    public ResponseEntity<Task> deleteTask(@RequestBody TaskRequestTO taskRequestTO) {
-        return ResponseEntity.ok(new Task());
+    public ResponseEntity<Boolean> deleteTask(@RequestParam long id) {
+        boolean taskResponseTO = taskService.deleteTask(id);
+        return ResponseEntity.ok(taskResponseTO);
     }
 
     @PutMapping("/status")
-    public ResponseEntity<Task> updateTaskStatus(@RequestParam String status) {
-        return ResponseEntity.ok(new Task());
+    public ResponseEntity<TaskResponseTO> updateTaskStatus(@RequestParam String status,
+                                                           @RequestParam long taskId,
+                                                           @RequestParam long userId) {
+        TaskResponseTO taskResponseTO = taskService.changeStatus(status, taskId, userId);
+        return ResponseEntity.ok(taskResponseTO);
     }
 
     @Secured({"ADMIN"})
     @PutMapping("/priority")
-    public ResponseEntity<Task> updateTaskPriority(@RequestParam String priority) {
-        return ResponseEntity.ok(new Task());
+    public ResponseEntity<TaskResponseTO> updateTaskPriority(@RequestParam String priority,
+                                                             @RequestParam long taskId) {
+        TaskResponseTO taskResponseTO = taskService.changePriority(priority, taskId);
+        return ResponseEntity.ok(taskResponseTO);
     }
 
     @Secured({"ADMIN"})
     @PutMapping("/performer")
-    public ResponseEntity<Task> updateTaskPerformer(@RequestParam String performer) {
-        return ResponseEntity.ok(new Task());
+    public ResponseEntity<TaskResponseTO> updateTaskPerformer(@RequestParam long performerId,
+                                                              @RequestParam long taskId) {
+        TaskResponseTO taskResponseTO = taskService.changePerformer(performerId, taskId);
+        return ResponseEntity.ok(taskResponseTO);
     }
 
     @PutMapping("/comment")
-    public ResponseEntity<Task> updateTaskComment(@RequestParam String comment) {
-        return ResponseEntity.ok(new Task());
+    public ResponseEntity<TaskResponseTO> updateTaskComment(@RequestParam String comment,
+                                                            @RequestParam long taskId,
+                                                            @RequestParam long userId) {
+        TaskResponseTO taskResponseTO = taskService.changeComment(comment, taskId, userId);
+        return ResponseEntity.ok(taskResponseTO);
     }
 }

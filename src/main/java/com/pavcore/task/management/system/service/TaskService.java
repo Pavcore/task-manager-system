@@ -18,13 +18,17 @@ import java.util.List;
 @Service
 public class TaskService {
 
+    private final CommentService commentService;
     private final TaskRepo taskRepo;
+    private final UserService userService;
     private final ResponseMapper responseMapper;
     private final RequestMapper requestMapper;
 
     @Autowired
-    public TaskService(TaskRepo taskRepo, ResponseMapper responseMapper, RequestMapper requestMapper) {
+    public TaskService(CommentService commentService, TaskRepo taskRepo, UserService userService, ResponseMapper responseMapper, RequestMapper requestMapper) {
+        this.commentService = commentService;
         this.taskRepo = taskRepo;
+        this.userService = userService;
         this.responseMapper = responseMapper;
         this.requestMapper = requestMapper;
     }
@@ -55,42 +59,52 @@ public class TaskService {
         if (taskRepo.existsById(taskId)) {
             taskRepo.deleteById(taskId);
             return true;
-        } else return false;
-    }
-
-    public boolean changeStatus(String status, long taskId, User user) {
-        if (checkTaskInDbAndOwnerThisTask(taskId, user)) {
-            taskRepo.findById(taskId).get().setStatus(status);
-            return true;
         }
         return false;
     }
 
-    public boolean changePriority(String priority, long taskId, User user) {
-        if (checkTaskInDbAndOwnerThisTask(taskId, user)) {
-            taskRepo.findById(taskId).get().setPriority(priority);
-            return true;
+    public TaskResponseTO changeStatus(String status, long taskId, long userId) {
+        Task taskFromDb = taskRepo.getReferenceById(taskId);
+        User performer = userService.getUserById(userId);
+        if (taskFromDb.getPerformer().equals(performer) || performer.getRole().equals(Role.ADMIN)) {
+            taskFromDb.setStatus(status);
+            taskRepo.save(taskFromDb);
         }
-        return false;
+        return responseMapper.map(taskFromDb);
     }
 
-    public boolean changePerformer(User performer, long taskId, User user) {
-        if (checkTaskInDbAndOwnerThisTask(taskId, user)) {
-            taskRepo.findById(taskId).get().setPerformer(performer);
-            return true;
-        }
-        return false;
+    public TaskResponseTO changePriority(String priority, long taskId) {
+        Task taskFromDb = taskRepo.getReferenceById(taskId);
+        taskFromDb.setPriority(priority);
+        taskRepo.save(taskFromDb);
+        return responseMapper.map(taskFromDb);
     }
 
-    public boolean changeComment(Comment comment, long taskId, User user) {
-        if (checkTaskInDbAndOwnerThisTask(taskId, user)) {
-            taskRepo.findById(taskId).get().getComment().add(comment);
-            return true;
-        }
-        return false;
+    public TaskResponseTO changePerformer(long taskId, long userId) {
+        Task taskFromDb = taskRepo.getReferenceById(taskId);
+        User newPerformer = userService.getUserById(userId);
+        taskFromDb.setPerformer(newPerformer);
+        taskRepo.save(taskFromDb);
+        return responseMapper.map(taskFromDb);
     }
 
-    public List<TaskResponseTO> getTasksByAuthor(User author) {
+    public TaskResponseTO changeComment(String content, long taskId, long userId) {
+        Task taskFromDb = taskRepo.getReferenceById(taskId);
+        User performer = userService.getUserById(userId);
+        Comment comment = Comment.builder()
+                .task(taskFromDb)
+                .content(content)
+                .build();
+        if (taskFromDb.getPerformer().equals(performer) || performer.getRole().equals(Role.ADMIN)) {
+            taskFromDb.getComments().add(comment);
+            taskRepo.save(taskFromDb);
+            commentService.save(comment);
+        }
+        return responseMapper.map(taskFromDb);
+    }
+
+    public List<TaskResponseTO> getTasksByAuthor(long authorId) {
+        User author = userService.getUserById(authorId);
         List<TaskResponseTO> taskResponseTOS = new ArrayList<>();
         for (Task task : taskRepo.getTasksByAuthor(author)) {
             taskResponseTOS.add(responseMapper.map(task));
@@ -98,12 +112,12 @@ public class TaskService {
         return taskResponseTOS;
     }
 
-    private boolean checkTaskInDbAndOwnerThisTask(long taskId, User user) {
-        if (taskRepo.findById(taskId).isPresent()) {
-            Task task = taskRepo.findById(taskId).get();
-            return user.getRole() == Role.ADMIN
-                    || task.getPerformer().getId() == user.getId();
+    public List<TaskResponseTO> getTasksByPerformer(long performerId) {
+        User performer = userService.getUserById(performerId);
+        List<TaskResponseTO> taskResponseTOS = new ArrayList<>();
+        for (Task task : taskRepo.getTasksByAuthor(performer)) {
+            taskResponseTOS.add(responseMapper.map(task));
         }
-        return false;
+        return taskResponseTOS;
     }
 }

@@ -28,7 +28,7 @@ public class Task {
     private String priority;
 
     @OneToMany(mappedBy = "task")
-    private List<Comment> comment;
+    private List<Comment> comments;
 
     @ManyToOne
     @JoinColumn(name = "author_id")
