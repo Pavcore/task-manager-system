@@ -12,12 +12,12 @@ import org.mapstruct.Mapping;
 @Mapper(componentModel = "spring")
 public interface ResponseMapper {
 
-    public UserResponseTO map(User user);
+    UserResponseTO map(User user);
 
-    @Mapping(target = "author", ignore = true)
-    @Mapping(target = "performer", ignore = true)
-    public TaskResponseTO map(Task task);
+    @Mapping(target = "author", source = "author.id")
+    @Mapping(target = "performer", source = "performer.id")
+    TaskResponseTO map(Task task);
 
-    public CommentResponseTo map(Comment comment);
+    CommentResponseTo map(Comment comment);
 
 }

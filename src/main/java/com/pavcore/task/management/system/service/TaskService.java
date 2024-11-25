@@ -8,12 +8,12 @@ import com.pavcore.task.management.system.dto.Role;
 import com.pavcore.task.management.system.dto.request.TaskRequestTO;
 import com.pavcore.task.management.system.dto.response.TaskResponseTO;
 import com.pavcore.task.management.system.exception.NoAccessException;
-import com.pavcore.task.management.system.exception.NotFoundAuthorException;
-import com.pavcore.task.management.system.exception.NotFoundTaskException;
 import com.pavcore.task.management.system.mapper.RequestMapper;
 import com.pavcore.task.management.system.mapper.ResponseMapper;
+import jakarta.persistence.EntityNotFoundException;
 import jakarta.servlet.http.HttpServletRequest;
 import org.springframework.beans.factory.annotation.Autowired;
+import org.springframework.data.domain.PageRequest;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
 
@@ -41,133 +41,102 @@ public class TaskService {
     @Transactional
     public TaskResponseTO createTask(TaskRequestTO taskRequestTO) {
         Task task = requestMapper.map(taskRequestTO);
-        Comment comment = Comment.builder()
-                .content(taskRequestTO.getComment())
-                .task(task)
-                .build();
         task.setAuthor(userService.getUserById(taskRequestTO.getAuthor()));
         task.setPerformer(userService.getUserById(taskRequestTO.getPerformer()));
         taskRepo.save(task);
-        commentService.save(comment);
-        return mapper(task);
+        if (!taskRequestTO.getComment().isEmpty()) {
+            Comment comment = Comment.builder()
+                    .content(taskRequestTO.getComment())
+                    .task(task)
+                    .build();
+            commentService.save(comment);
+        }
+        return responseMapper.map(task);
     }
 
     @Transactional
     public TaskResponseTO updateTask(TaskRequestTO taskRequestTO, long taskId) {
-        try {
-            Task taskFromDb = taskRepo.getReferenceById(taskId);
-            Task task = requestMapper.map(taskRequestTO);
-            task.setId(taskFromDb.getId());
-            taskRepo.save(task);
-            return mapper(task);
-        } catch (RuntimeException e) {
-            throw new NotFoundTaskException(e.getMessage());
-        }
+        Task taskFromDb = taskRepo.findById(taskId)
+                .orElseThrow(EntityNotFoundException::new);
+        Task task = requestMapper.map(taskRequestTO);
+        task.setId(taskFromDb.getId());
+        taskRepo.save(task);
+        return responseMapper.map(task);
     }
 
     public TaskResponseTO getTask(long taskId) {
-        try {
-            Task task = taskRepo.getReferenceById(taskId);
-            return mapper(task);
-        } catch (RuntimeException e) {
-            throw new NotFoundTaskException(e.getMessage());
-        }
+        Task task = taskRepo.findById(taskId)
+                .orElseThrow(EntityNotFoundException::new);
+        return responseMapper.map(task);
     }
 
     @Transactional
     public boolean deleteTask(long taskId) {
-        try {
-            taskRepo.deleteById(taskId);
-            return true;
-        } catch (RuntimeException e) {
-            throw new NotFoundTaskException(e.getMessage());
-        }
+        taskRepo.deleteById(taskId);
+        return true;
     }
 
     @Transactional
     public TaskResponseTO changeStatus(String status, long taskId, HttpServletRequest request) {
-        try {
-            Task taskFromDb = taskRepo.getReferenceById(taskId);
-            User performer = userService.getUserByToken(request);
-            if (taskFromDb.getPerformer().equals(performer) || performer.getRole().equals(Role.ADMIN)) {
-                taskFromDb.setStatus(status);
-                taskRepo.save(taskFromDb);
-            } else throw new NoAccessException("No access");
-            return mapper(taskFromDb);
-        } catch (NoAccessException e) {
-            throw new NoAccessException(e.getMessage());
-        }
+        Task taskFromDb = taskRepo.findById(taskId)
+                .orElseThrow(EntityNotFoundException::new);
+        User performer = userService.getUserByToken(request);
+        if (taskFromDb.getPerformer().equals(performer) || performer.getRole().equals(Role.ADMIN)) {
+            taskFromDb.setStatus(status);
+            taskRepo.save(taskFromDb);
+        } else throw new NoAccessException("No access");
+        return responseMapper.map(taskFromDb);
     }
 
     @Transactional
     public TaskResponseTO changePriority(String priority, long taskId) {
-        try {
-            Task taskFromDb = taskRepo.getReferenceById(taskId);
-            taskFromDb.setPriority(priority);
-            taskRepo.save(taskFromDb);
-            return mapper(taskFromDb);
-        } catch (RuntimeException e) {
-            throw new NotFoundTaskException(e.getMessage());
-        }
+        Task taskFromDb = taskRepo.findById(taskId)
+                .orElseThrow(EntityNotFoundException::new);
+        taskFromDb.setPriority(priority);
+        taskRepo.save(taskFromDb);
+        return responseMapper.map(taskFromDb);
     }
 
     @Transactional
     public TaskResponseTO changePerformer(long performerId, long taskId) {
-        try {
-            User newPerformer = userService.getUserById(performerId);
-            Task taskFromDb = taskRepo.getReferenceById(taskId);
-            taskFromDb.setPerformer(newPerformer);
-            taskRepo.save(taskFromDb);
-            return mapper(taskFromDb);
-        } catch (RuntimeException e) {
-            throw new NotFoundTaskException(e.getMessage());
-        }
+        User newPerformer = userService.getUserById(performerId);
+        Task taskFromDb = taskRepo.findById(taskId)
+                .orElseThrow(EntityNotFoundException::new);
+        taskFromDb.setPerformer(newPerformer);
+        taskRepo.save(taskFromDb);
+        return responseMapper.map(taskFromDb);
     }
 
     @Transactional
     public TaskResponseTO changeComment(String content, long taskId, HttpServletRequest request) {
-        try {
-            Task taskFromDb = taskRepo.getReferenceById(taskId);
-            User performer = userService.getUserByToken(request);
-            Comment comment = Comment.builder()
-                    .task(taskFromDb)
-                    .content(content)
-                    .build();
-            if (taskFromDb.getPerformer().equals(performer) || performer.getRole().equals(Role.ADMIN)) {
-                commentService.save(comment);
-            } else throw new NoAccessException("No access");
-            return mapper(taskFromDb);
-        } catch (NoAccessException e) {
-            throw new NoAccessException(e.getMessage());
-        }
+        Task taskFromDb = taskRepo.findById(taskId)
+                .orElseThrow(EntityNotFoundException::new);
+        User performer = userService.getUserByToken(request);
+        Comment comment = Comment.builder()
+                .task(taskFromDb)
+                .content(content)
+                .build();
+        if (taskFromDb.getPerformer().equals(performer) || performer.getRole().equals(Role.ADMIN)) {
+            commentService.save(comment);
+        } else throw new NoAccessException("No access");
+        return responseMapper.map(taskFromDb);
     }
 
-    public List<TaskResponseTO> getTasksByAuthor(long authorId) {
-        try {
-            User author = userService.getUserById(authorId);
-            List<TaskResponseTO> taskResponseTOS = new ArrayList<>();
-            for (Task task : taskRepo.getTasksByAuthor(author)) {
-                taskResponseTOS.add(responseMapper.map(task));
-            }
-            return taskResponseTOS;
-        } catch (NotFoundAuthorException e) {
-            throw new NotFoundAuthorException(e.getMessage());
-        }
-    }
-
-    public List<TaskResponseTO> getTasksByPerformer(long performerId) {
-        User performer = userService.getUserById(performerId);
+    public List<TaskResponseTO> getTasksByAuthor(long authorId, int offset, int limit) {
+        User author = userService.getUserById(authorId);
         List<TaskResponseTO> taskResponseTOS = new ArrayList<>();
-        for (Task task : taskRepo.getTasksByPerformer(performer)) {
+        for (Task task : taskRepo.getTasksByAuthor(author, PageRequest.of(offset, limit))) {
             taskResponseTOS.add(responseMapper.map(task));
         }
         return taskResponseTOS;
     }
 
-    private TaskResponseTO mapper(Task task) {
-        TaskResponseTO taskResponseTO = responseMapper.map(task);
-        taskResponseTO.setAuthor(task.getAuthor().getId());
-        taskResponseTO.setPerformer(task.getPerformer().getId());
-        return taskResponseTO;
+    public List<TaskResponseTO> getTasksByPerformer(long performerId, int offset, int limit) {
+        User performer = userService.getUserById(performerId);
+        List<TaskResponseTO> taskResponseTOS = new ArrayList<>();
+        for (Task task : taskRepo.getTasksByPerformer(performer, PageRequest.of(offset, limit))) {
+            taskResponseTOS.add(responseMapper.map(task));
+        }
+        return taskResponseTOS;
     }
 }

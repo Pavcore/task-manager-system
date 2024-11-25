@@ -10,11 +10,11 @@ import org.mapstruct.Mapping;
 @Mapper(componentModel = "spring")
 public interface RequestMapper {
 
-    public User map(UserRequestTO userRequestTO);
+    User map(UserRequestTO userRequestTO);
 
     @Mapping(target = "comments", ignore = true)
     @Mapping(target = "author", ignore = true)
     @Mapping(target = "performer", ignore = true)
-    public Task map(TaskRequestTO taskRequestTO);
+    Task map(TaskRequestTO taskRequestTO);
 
 }

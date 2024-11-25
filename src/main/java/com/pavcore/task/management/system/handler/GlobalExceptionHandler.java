@@ -1,9 +1,8 @@
 package com.pavcore.task.management.system.handler;
 
 import com.pavcore.task.management.system.exception.NoAccessException;
-import com.pavcore.task.management.system.exception.NotFoundAuthorException;
-import com.pavcore.task.management.system.exception.NotFoundPerformerException;
-import com.pavcore.task.management.system.exception.NotFoundTaskException;
+import com.pavcore.task.management.system.exception.NotFoundUserException;
+import jakarta.persistence.EntityNotFoundException;
 import jakarta.validation.ConstraintViolationException;
 import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
@@ -25,21 +24,15 @@ public class GlobalExceptionHandler {
         return new ResponseEntity<>(ex.getMessage(), HttpStatus.LOCKED);
     }
 
-    @ExceptionHandler(NotFoundAuthorException.class)
+    @ExceptionHandler(NotFoundUserException.class)
     @ResponseStatus(HttpStatus.NOT_FOUND)
-    public ResponseEntity<String> handleLoadCharacterException(NotFoundAuthorException ex) {
+    public ResponseEntity<String> handleRegistrationException(NotFoundUserException ex) {
         return new ResponseEntity<>(ex.getMessage(), HttpStatus.NOT_FOUND);
     }
 
-    @ExceptionHandler(NotFoundPerformerException.class)
+    @ExceptionHandler(EntityNotFoundException.class)
     @ResponseStatus(HttpStatus.NOT_FOUND)
-    public ResponseEntity<String> handleRegistrationException(NotFoundPerformerException ex) {
-        return new ResponseEntity<>(ex.getMessage(), HttpStatus.NOT_FOUND);
-    }
-
-    @ExceptionHandler(NotFoundTaskException.class)
-    @ResponseStatus(HttpStatus.NOT_FOUND)
-    public ResponseEntity<String> handleDeleteCharacterException(NotFoundTaskException ex) {
+    public ResponseEntity<String> handleDeleteCharacterException(EntityNotFoundException ex) {
         return new ResponseEntity<>(ex.getMessage(), HttpStatus.NOT_FOUND);
     }
 

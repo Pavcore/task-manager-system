@@ -1,0 +1,19 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<databaseChangeLog
+        xmlns="http://www.liquibase.org/xml/ns/dbchangelog"
+        xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance"
+        xsi:schemaLocation="http://www.liquibase.org/xml/ns/dbchangelog
+        https://www.liquibase.org/xml/ns/dbchangelog/dbchangelog-4.9.xsd">
+    <changeSet id="15-41-20-add-users-in-db" author="pkorchagin">
+        <insert tableName="users">
+            <column name="email">pavcore@example.com</column>
+            <column name="password">$2y$10$cOt44Ntz1s1h6SEAB70a8en.DCIcr7n.g5/jlslWhEnb.1C9cihYK</column>
+            <column name="role">ADMIN</column>
+        </insert>
+        <insert tableName="users">
+            <column name="email">worker@gmail.com</column>
+            <column name="password">$2y$10$cOt44Ntz1s1h6SEAB70a8en.DCIcr7n.g5/jlslWhEnb.1C9cihYK</column>
+            <column name="role">USER</column>
+        </insert>
+    </changeSet>
+</databaseChangeLog>

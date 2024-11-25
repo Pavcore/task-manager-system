@@ -37,12 +37,10 @@ public class TaskRequestTO {
     private String comment;
 
     @NotNull(message = "Автор не должен быть null")
-    @NotBlank(message = "Строку необходимо заполнить")
     @DecimalMin(value = "1", message = "Строка должна содержать числа больше нуля")
     private long author;
 
     @NotNull(message = "Исполнитель не должен быть null")
-    @NotBlank(message = "Строку необходимо заполнить")
     @DecimalMin(value = "1", message = "Строка должна содержать числа больше нуля")
     private long performer;
 }

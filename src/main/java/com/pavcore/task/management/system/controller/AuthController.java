@@ -2,6 +2,9 @@ package com.pavcore.task.management.system.controller;
 
 import com.pavcore.task.management.system.dto.request.UserRequestTO;
 import com.pavcore.task.management.system.service.AuthService;
+import io.swagger.v3.oas.annotations.Operation;
+import io.swagger.v3.oas.annotations.responses.ApiResponse;
+import io.swagger.v3.oas.annotations.responses.ApiResponses;
 import jakarta.validation.Valid;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.http.ResponseEntity;
@@ -23,6 +26,12 @@ public class AuthController {
         this.authService = authService;
     }
 
+    @Operation(summary = "Аутентифицировать пользователя по email и password",
+    description = "Возвращает уникальный токен пользователя")
+    @ApiResponses(value = {
+            @ApiResponse(responseCode = "200", description = "Пользователь авторизован"),
+            @ApiResponse(responseCode = "401", description = "Пользователь не авторизован")
+    })
     @PostMapping
     public ResponseEntity<Map<String, String>> authenticate(@Valid @RequestBody UserRequestTO userRequestTO) {
         String token = authService.authenticate(userRequestTO);

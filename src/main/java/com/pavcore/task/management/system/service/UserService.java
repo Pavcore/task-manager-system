@@ -3,7 +3,7 @@ package com.pavcore.task.management.system.service;
 import com.pavcore.task.management.system.config.JwtUtil;
 import com.pavcore.task.management.system.dao.entity.User;
 import com.pavcore.task.management.system.dao.repo.UserRepo;
-import com.pavcore.task.management.system.exception.NotFoundPerformerException;
+import com.pavcore.task.management.system.exception.NotFoundUserException;
 import jakarta.servlet.http.HttpServletRequest;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.security.core.userdetails.UsernameNotFoundException;
@@ -22,15 +22,13 @@ public class UserService {
     }
 
     public User getUserById(long id) {
-        try {
-            return userRepo.getReferenceById(id);
-        } catch (NotFoundPerformerException e) {
-            throw new NotFoundPerformerException(e.getMessage());
-        }
+           return userRepo.findById(id)
+                           .orElseThrow(() -> new NotFoundUserException("Пользователь не найден"));
     }
 
     public User getUserByEmail(String email) {
-        return userRepo.findByEmail(email).orElseThrow(() -> new UsernameNotFoundException("User not found"));
+        return userRepo.findByEmail(email)
+                .orElseThrow(() -> new UsernameNotFoundException("User not found"));
     }
 
     public User getUserByToken(HttpServletRequest request) {

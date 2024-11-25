@@ -5,6 +5,7 @@ import lombok.AllArgsConstructor;
 import lombok.Builder;
 import lombok.Data;
 import lombok.NoArgsConstructor;
+import org.hibernate.annotations.Cascade;
 
 import java.util.List;
 
@@ -33,6 +34,7 @@ public class Task {
     private String priority;
 
     @OneToMany(mappedBy = "task")
+    @Cascade(org.hibernate.annotations.CascadeType.DELETE_ORPHAN)
     private List<Comment> comments;
 
     @ManyToOne
