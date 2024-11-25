@@ -72,8 +72,11 @@ public class TaskService {
 
     @Transactional
     public boolean deleteTask(long taskId) {
-        taskRepo.deleteById(taskId);
-        return true;
+        if (taskRepo.existsById(taskId)) {
+            taskRepo.deleteById(taskId);
+            return true;
+        }
+        return false;
     }
 
     @Transactional
