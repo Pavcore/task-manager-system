@@ -150,6 +150,7 @@ public class TaskServiceTest {
 
     @Test
     public void testDeleteTask_Success() {
+        when(taskRepo.existsById(1L)).thenReturn(true);
         doNothing().when(taskRepo).deleteById(1L);
 
         boolean result = taskService.deleteTask(1L);
@@ -160,10 +161,9 @@ public class TaskServiceTest {
 
     @Test
     public void testDeleteTask_NotFound() {
-        doThrow(new EntityNotFoundException("Task not found")).when(taskRepo).deleteById(1L);
-
-        EntityNotFoundException exception = assertThrows(EntityNotFoundException.class, () -> taskService.deleteTask(1L));
-        assertEquals("Task not found", exception.getMessage());
+        boolean result = taskService.deleteTask(1L);
+        assertFalse(result);
+        verify(taskRepo, times(0)).deleteById(1L);
     }
 
 
