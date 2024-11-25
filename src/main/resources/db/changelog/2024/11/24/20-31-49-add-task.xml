@@ -1,0 +1,50 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<databaseChangeLog
+        xmlns="http://www.liquibase.org/xml/ns/dbchangelog"
+        xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance"
+        xsi:schemaLocation="http://www.liquibase.org/xml/ns/dbchangelog
+        https://www.liquibase.org/xml/ns/dbchangelog/dbchangelog-4.9.xsd">
+    <changeSet id="20-31-49-add-task" author="pkorchagin">
+        <createTable tableName="task">
+            <column name="id" type="bigserial">
+                <constraints nullable="false" primaryKey="true"/>
+            </column>
+            <column name="title" type="varchar(32)">
+                <constraints nullable="false"/>
+            </column>
+            <column name="description" type="varchar(512)">
+                <constraints nullable="true"/>
+            </column>
+            <column name="status" type="varchar(32)" defaultValue="в ожидании">
+                <constraints nullable="false"/>
+            </column>
+            <column name="priority" type="varchar(32)" defaultValue="низкий">
+                <constraints nullable="false"/>
+            </column>
+            <column name="author_id" type="bigint">
+                <constraints nullable="false"/>
+            </column>
+            <column name="performer_id" type="bigint">
+                <constraints nullable="false"/>
+            </column>
+        </createTable>
+    </changeSet>
+    <changeSet id="20-31-49-add-fk-author" author="pkorchagin">
+        <addForeignKeyConstraint baseColumnNames="author_id"
+                                 baseTableName="task"
+                                 constraintName="fk_author"
+                                 onDelete="RESTRICT"
+                                 onUpdate="RESTRICT"
+                                 referencedColumnNames="id"
+                                 referencedTableName="users"/>
+    </changeSet>
+    <changeSet id="20-31-49-add-fk-performer" author="pkorchagin">
+        <addForeignKeyConstraint baseColumnNames="performer_id"
+                                 baseTableName="task"
+                                 constraintName="fk_performer"
+                                 onDelete="RESTRICT"
+                                 onUpdate="RESTRICT"
+                                 referencedColumnNames="id"
+                                 referencedTableName="users"/>
+    </changeSet>
+</databaseChangeLog>

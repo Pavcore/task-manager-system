@@ -1,6 +1,5 @@
 package com.pavcore.task.management.system.dto.response;
 
-import com.pavcore.task.management.system.dao.entity.Comment;
 import lombok.AllArgsConstructor;
 import lombok.Builder;
 import lombok.Data;
@@ -24,7 +23,7 @@ public class TaskResponseTO {
 
     private String priority;
 
-    private List<Comment> comments;
+    private List<CommentResponseTo> comments;
 
     private long author;
 

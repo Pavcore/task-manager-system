@@ -7,23 +7,25 @@ import lombok.Builder;
 import lombok.Data;
 import lombok.NoArgsConstructor;
 
-import java.util.List;
-
 @Entity
 @Builder
 @NoArgsConstructor
 @AllArgsConstructor
 @Data
+@Table(name = "users")
 public class User {
 
     @Id
     @GeneratedValue(strategy = GenerationType.IDENTITY)
     private long id;
 
+    @Column(name = "email", nullable = false, length = 64)
     private String email;
 
+    @Column(name = "password", nullable = false, length = 64)
     private String password;
 
+    @Column(name = "role", nullable = false, length = 32)
     @Enumerated(EnumType.STRING)
     private Role role;
 

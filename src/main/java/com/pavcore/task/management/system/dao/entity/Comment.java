@@ -11,6 +11,7 @@ import lombok.NoArgsConstructor;
 @NoArgsConstructor
 @AllArgsConstructor
 @Data
+@Table(name = "comment")
 public class Comment {
 
     @Id
@@ -18,8 +19,9 @@ public class Comment {
     private long id;
 
     @ManyToOne
-    @JoinColumn(name = "task")
+    @JoinColumn(name = "task_id")
     private Task task;
 
+    @Column(name = "content", length = 512)
     private String content;
 }

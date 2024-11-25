@@ -1,0 +1,29 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<databaseChangeLog
+xmlns="http://www.liquibase.org/xml/ns/dbchangelog"
+xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance"
+xsi:schemaLocation="http://www.liquibase.org/xml/ns/dbchangelog
+        https://www.liquibase.org/xml/ns/dbchangelog/dbchangelog-4.9.xsd">
+<changeSet id="20-32-31-add-comment" author="pkorchagin">
+    <createTable tableName="comment">
+        <column name="id" type="bigserial">
+            <constraints nullable="false" primaryKey="true"/>
+        </column>
+        <column name="content" type="varchar(512)">
+            <constraints nullable="true"/>
+        </column>
+        <column name="task_id" type="bigint">
+            <constraints nullable="false"/>
+        </column>
+    </createTable>
+</changeSet>
+    <changeSet id="20-32-31-add-fk-task" author="pkorchagin">
+        <addForeignKeyConstraint baseColumnNames="task_id"
+                                 baseTableName="comment"
+                                 constraintName="fk_task"
+                                 onDelete="RESTRICT"
+                                 onUpdate="RESTRICT"
+                                 referencedColumnNames="id"
+                                 referencedTableName="task"/>
+    </changeSet>
+</databaseChangeLog>

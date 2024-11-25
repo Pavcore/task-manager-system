@@ -2,6 +2,7 @@ package com.pavcore.task.management.system.controller;
 
 import com.pavcore.task.management.system.dto.request.UserRequestTO;
 import com.pavcore.task.management.system.service.AuthService;
+import jakarta.validation.Valid;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.http.ResponseEntity;
 import org.springframework.web.bind.annotation.PostMapping;
@@ -23,7 +24,7 @@ public class AuthController {
     }
 
     @PostMapping
-    public ResponseEntity<Map<String, String>> authenticate(@RequestBody UserRequestTO userRequestTO) {
+    public ResponseEntity<Map<String, String>> authenticate(@Valid @RequestBody UserRequestTO userRequestTO) {
         String token = authService.authenticate(userRequestTO);
         return ResponseEntity.ok(Map.of("token", token));
     }
