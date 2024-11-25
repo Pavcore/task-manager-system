@@ -21,7 +21,7 @@ import org.mockito.Mock;
 import org.mockito.junit.jupiter.MockitoExtension;
 import org.springframework.data.domain.PageRequest;
 
-import java.util.Arrays;
+import java.util.Collections;
 import java.util.List;
 import java.util.Optional;
 
@@ -54,7 +54,6 @@ public class TaskServiceTest {
     private TaskResponseTO taskResponseTO;
     private User author;
     private User performer;
-    private Comment comment;
 
     @BeforeEach
     public void setUp() {
@@ -101,9 +100,7 @@ public class TaskServiceTest {
     public void testCreateTask_AuthorNotFound() {
         when(userService.getUserById(1L)).thenThrow(new NotFoundUserException("Author not found"));
 
-        NotFoundUserException exception = assertThrows(NotFoundUserException.class, () -> {
-            taskService.createTask(taskRequestTO);
-        });
+        NotFoundUserException exception = assertThrows(NotFoundUserException.class, () -> taskService.createTask(taskRequestTO));
         assertEquals("Author not found", exception.getMessage());
         verify(taskRepo, times(0)).save(any(Task.class));
     }
@@ -125,9 +122,7 @@ public class TaskServiceTest {
     public void testUpdateTask_NotFound() {
         when(taskRepo.findById(1L)).thenThrow(new EntityNotFoundException("Task not found"));
 
-        EntityNotFoundException exception = assertThrows(EntityNotFoundException.class, () -> {
-            taskService.updateTask(taskRequestTO, 1L);
-        });
+        EntityNotFoundException exception = assertThrows(EntityNotFoundException.class, () -> taskService.updateTask(taskRequestTO, 1L));
         assertEquals("Task not found", exception.getMessage());
         verify(taskRepo, times(0)).save(any(Task.class));
     }
@@ -148,9 +143,7 @@ public class TaskServiceTest {
     public void testGetTask_NotFound() {
         when(taskRepo.findById(1L)).thenThrow(new EntityNotFoundException("Task not found"));
 
-        EntityNotFoundException exception = assertThrows(EntityNotFoundException.class, () -> {
-            taskService.getTask(1L);
-        });
+        EntityNotFoundException exception = assertThrows(EntityNotFoundException.class, () -> taskService.getTask(1L));
         assertEquals("Task not found", exception.getMessage());
     }
 
@@ -169,9 +162,7 @@ public class TaskServiceTest {
     public void testDeleteTask_NotFound() {
         doThrow(new EntityNotFoundException("Task not found")).when(taskRepo).deleteById(1L);
 
-        EntityNotFoundException exception = assertThrows(EntityNotFoundException.class, () -> {
-            taskService.deleteTask(1L);
-        });
+        EntityNotFoundException exception = assertThrows(EntityNotFoundException.class, () -> taskService.deleteTask(1L));
         assertEquals("Task not found", exception.getMessage());
     }
 
@@ -200,9 +191,7 @@ public class TaskServiceTest {
         when(taskRepo.findById(1L)).thenReturn(Optional.ofNullable(task));
         when(userService.getUserByToken(request)).thenReturn(anotherUser);
 
-        NoAccessException exception = assertThrows(NoAccessException.class, () -> {
-            taskService.changeStatus("In Progress", 1L, request);
-        });
+        NoAccessException exception = assertThrows(NoAccessException.class, () -> taskService.changeStatus("In Progress", 1L, request));
         assertEquals("No access", exception.getMessage());
         verify(taskRepo, times(0)).save(any(Task.class));
     }
@@ -224,9 +213,7 @@ public class TaskServiceTest {
     public void testChangePriority_NotFound() {
         when(taskRepo.findById(1L)).thenThrow(new EntityNotFoundException("Task not found"));
 
-        EntityNotFoundException exception = assertThrows(EntityNotFoundException.class, () -> {
-            taskService.changePriority("High", 1L);
-        });
+        EntityNotFoundException exception = assertThrows(EntityNotFoundException.class, () -> taskService.changePriority("High", 1L));
         assertEquals("Task not found", exception.getMessage());
     }
 
@@ -252,9 +239,7 @@ public class TaskServiceTest {
     public void testChangePerformer_TaskNotFound() {
         when(taskRepo.findById(1L)).thenThrow(new EntityNotFoundException("Task not found"));
 
-        EntityNotFoundException exception = assertThrows(EntityNotFoundException.class, () -> {
-            taskService.changePerformer(3L, 1L);
-        });
+        EntityNotFoundException exception = assertThrows(EntityNotFoundException.class, () -> taskService.changePerformer(3L, 1L));
         assertEquals("Task not found", exception.getMessage());
     }
 
@@ -282,9 +267,7 @@ public class TaskServiceTest {
         when(taskRepo.findById(1L)).thenReturn(Optional.ofNullable(task));
         when(userService.getUserByToken(request)).thenReturn(anotherUser);
 
-        NoAccessException exception = assertThrows(NoAccessException.class, () -> {
-            taskService.changeComment("New comment", 1L, request);
-        });
+        NoAccessException exception = assertThrows(NoAccessException.class, () -> taskService.changeComment("New comment", 1L, request));
         assertEquals("No access", exception.getMessage());
         verify(commentService, times(0)).save(any(Comment.class));
     }
@@ -292,7 +275,7 @@ public class TaskServiceTest {
 
     @Test
     public void testGetTasksByAuthor_Success() {
-        List<Task> tasks = Arrays.asList(task);
+        List<Task> tasks = Collections.singletonList(task);
         when(userService.getUserById(1L)).thenReturn(author);
         when(taskRepo.getTasksByAuthor(author, PageRequest.of(1, 5))).thenReturn(tasks);
         when(responseMapper.map(task)).thenReturn(taskResponseTO);
@@ -307,16 +290,14 @@ public class TaskServiceTest {
     public void testGetTasksByAuthor_AuthorNotFound() {
         when(userService.getUserById(1L)).thenThrow(new NotFoundUserException("Author not found"));
 
-        NotFoundUserException exception = assertThrows(NotFoundUserException.class, () -> {
-            taskService.getTasksByAuthor(1L, 1, 5);
-        });
+        NotFoundUserException exception = assertThrows(NotFoundUserException.class, () -> taskService.getTasksByAuthor(1L, 1, 5));
         assertEquals("Author not found", exception.getMessage());
     }
 
 
     @Test
     public void testGetTasksByPerformer_Success() {
-        List<Task> tasks = Arrays.asList(task);
+        List<Task> tasks = Collections.singletonList(task);
         when(userService.getUserById(2L)).thenReturn(performer);
         when(taskRepo.getTasksByPerformer(performer, PageRequest.of(1, 5))).thenReturn(tasks);
         when(responseMapper.map(task)).thenReturn(taskResponseTO);
@@ -331,9 +312,7 @@ public class TaskServiceTest {
     public void testGetTasksByPerformer_PerformerNotFound() {
         when(userService.getUserById(2L)).thenThrow(new NotFoundUserException("Performer not found"));
 
-        NotFoundUserException exception = assertThrows(NotFoundUserException.class, () -> {
-            taskService.getTasksByPerformer(2L, 1, 5);
-        });
+        NotFoundUserException exception = assertThrows(NotFoundUserException.class, () -> taskService.getTasksByPerformer(2L, 1, 5));
         assertEquals("Performer not found", exception.getMessage());
     }
 }

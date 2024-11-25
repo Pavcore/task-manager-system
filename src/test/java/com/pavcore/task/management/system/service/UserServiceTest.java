@@ -49,9 +49,7 @@ public class UserServiceTest {
         long userId = 1L;
         when(userRepo.findById(userId)).thenThrow(new NotFoundUserException("User not found"));
 
-        NotFoundUserException exception = assertThrows(NotFoundUserException.class, () -> {
-            userService.getUserById(userId);
-        });
+        NotFoundUserException exception = assertThrows(NotFoundUserException.class, () -> userService.getUserById(userId));
 
         assertEquals("User not found", exception.getMessage());
     }
@@ -75,9 +73,7 @@ public class UserServiceTest {
         String email = "test@example.com";
         when(userRepo.findByEmail(email)).thenReturn(Optional.empty());
 
-        UsernameNotFoundException exception = assertThrows(UsernameNotFoundException.class, () -> {
-            userService.getUserByEmail(email);
-        });
+        UsernameNotFoundException exception = assertThrows(UsernameNotFoundException.class, () -> userService.getUserByEmail(email));
 
         assertEquals("User not found", exception.getMessage());
     }
@@ -112,9 +108,7 @@ public class UserServiceTest {
         when(jwtUtil.getEmailFromToken(token)).thenReturn(email);
         when(userRepo.findByEmail(email)).thenReturn(Optional.empty());
 
-        UsernameNotFoundException exception = assertThrows(UsernameNotFoundException.class, () -> {
-            userService.getUserByToken(mockRequest);
-        });
+        UsernameNotFoundException exception = assertThrows(UsernameNotFoundException.class, () -> userService.getUserByToken(mockRequest));
 
         assertEquals("User not found", exception.getMessage());
     }

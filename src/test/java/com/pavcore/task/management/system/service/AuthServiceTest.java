@@ -62,9 +62,7 @@ public class AuthServiceTest {
                 .when(authenticationManager)
                 .authenticate(new UsernamePasswordAuthenticationToken(email, password));
 
-        BadCredentialsException exception = assertThrows(BadCredentialsException.class, () -> {
-            authService.authenticate(userRequestTO);
-        });
+        BadCredentialsException exception = assertThrows(BadCredentialsException.class, () -> authService.authenticate(userRequestTO));
 
         assertEquals("Invalid credentials", exception.getMessage());
         verify(authenticationManager, times(1))
